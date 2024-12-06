@@ -8,4 +8,4 @@ apt-get update && apt-get install -y \
     libglib2.0-0
 
 # Instal dependensi Python
-pip3 install --no-cache-dir -r /app/requirements.txt
+pip3 install --no-cache-dir -r requirements.txt
