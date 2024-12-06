@@ -1,46 +1,21 @@
-# Gunakan base image Python 3.12
-FROM python:3.12-slim
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10
 
-# Perbarui sistem dan instal library sistem yang diperlukan
 RUN apt-get update && apt-get install -y \
-    wget \
-    build-essential \
     libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    gawk \
-    bison \
     && rm -rf /var/lib/apt/lists/*
 
-# Instal GLIBC versi stabil
-ENV GLIBC_VERSION=2.38
-RUN wget http://ftp.gnu.org/gnu/libc/glibc-$GLIBC_VERSION.tar.gz && \
-    tar -xvf glibc-$GLIBC_VERSION.tar.gz && \
-    cd glibc-$GLIBC_VERSION && \
-    mkdir build && cd build && \
-    ../configure --prefix=/opt/glibc-$GLIBC_VERSION && \
-    make -j$(nproc) && make install && \
-    rm -rf /glibc-$GLIBC_VERSION*
+# Copy and install Python dependencies
+COPY ./requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Tambahkan GLIBC baru ke library path
-ENV LD_LIBRARY_PATH=/opt/glibc-$GLIBC_VERSION/lib:$LD_LIBRARY_PATH
-
-# Tentukan direktori kerja di dalam container
-WORKDIR /app
-
-# Salin file requirements.txt
-COPY requirements.txt /app/
-
-# Perbarui pip dan instal dependensi
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install --no-cache-dir -r /app/requirements.txt --verbose
-
-# Salin semua file dari host ke container
+# Copy the application code and the model directory
 COPY . .
 
-# Ekspos port yang digunakan aplikasi
-EXPOSE 8000
+# Set the working directory
+WORKDIR /app
 
-# Jalankan aplikasi menggunakan Uvicorn
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Expose the port that the app runs on
+EXPOSE 8006
+
+# Command to run the application
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8006"]
