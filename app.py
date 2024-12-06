@@ -64,9 +64,13 @@ class NutritionFactExtractor:
                filename.rsplit('.', 1)[1].lower() in self.ALLOWED_EXTENSIONS
                
     def read_img(self, img_data):
+        print('Reading image...')
         img_array = np.frombuffer(img_data, np.uint8)
+        print('Reading image2...')
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        print('Reading image3...')
         result = self.ocr.ocr(img, cls=True)
+        print('Reading ocr...')
         for box in result[0]:
             box[1] = (box[1][0].lower(), box[1][1])
         return result[0]
