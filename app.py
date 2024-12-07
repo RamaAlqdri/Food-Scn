@@ -101,7 +101,11 @@ class NutritionFactExtractor:
         return [0.0, '']
     
     def get_100_g_scale(self, nutrition_value_units):
-        return 100/nutrition_value_units['serving_size'][0]
+        serving_size = nutrition_value_units['serving_size'][0]
+        if serving_size == 0:
+            return 1
+        return 100 / serving_size
+
     
     def get_nutrition_value(self, nutrition_value_units, scaled_nutrition):
         extracted_nutrition_value = {}
@@ -157,7 +161,7 @@ def home():
     return {"health_check": "OK"}
 @app.post("/predict", response_model=Prediction)
 async def prediction(file: UploadFile = File(...)):
-    print(file)
+    # print(file)
     if nutrition_fact_extractor.check_file(file.filename):
         contents = await file.read()
         img_text = nutrition_fact_extractor.read_img(contents)
